@@ -1,0 +1,117 @@
+<?php
+require './my_db.php';
+session_start();
+$name = '';
+$gender = '';
+$email = '';
+$phone = '';
+$age = '';
+$id = '';
+$feedback = array();
+
+if ($_SESSION['login']) {
+    $id =  json_decode($_SESSION['member'])->member_id;
+    $name = json_decode($_SESSION['member'])->name;
+    $gender = json_decode($_SESSION['member'])->gender;
+    $email = json_decode($_SESSION['member'])->email;
+    $phone = json_decode($_SESSION['member'])->phone;
+    $type = json_decode($_SESSION['member'])->type;
+}
+global $conn;
+connect_db();
+$id = $_GET['id_lp'];
+if (isset($_GET['id_lp'])) {
+    $sql = "SELECT * FROM feedback where feedback_id = '$id';";
+    // $sql = "SELECT * FROM feedback fb JOIN member mb ON fb.member_id = fb.member_id WHERE feedback_id = '$id'";
+    $query = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_assoc($query)) {
+        $feedback[] = $row;
+    }
+    if (mysqli_num_rows($query) > 0) {
+        $count = mysqli_num_rows($query);
+    }
+} else {
+    header("location: mdi2.php");
+}
+
+if (isset($_POST['back'])) {
+    header("location: indexAD.php");
+}
+
+disconnect_db();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>Feedback View</title>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/aos.css">
+
+    <!-- MAIN CSS -->
+    <link rel="stylesheet" href="css/tooplate-gymso-style.css">
+
+</head>
+
+<body data-spy="scroll" data-target="#navbarNav" data-offset="50">
+
+
+    <!-- Modal -->
+    <div>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Thông tin phản hồi</h3>
+                    <button type="button" class="close">
+                        <a href="member.php"><span>
+                                <h7> X </h7>
+                            </span></a>
+                    </button>
+                </div>
+                <p></p>
+                <div class="modal-body">
+                    <form class="membership-form webform" name="form-feedback" role="form" action="feedback_Admin.php" method="POST">
+                        <table>
+                            <tr>
+                                <p>Họ tên học viên:</p>
+                                <input type="text" class="form-control" name="cf-name" readonly value="<?php echo $name ?>">
+                            </tr>
+                            <tr>
+                                <p>Số điện thoại:</p>
+                                <input type="text" class="form-control" name="cf-phone" readonly value="<?php echo $phone ?>">
+                            </tr>
+                            <tr>
+                                <p>Email:</p>
+                                <input type="text" class="form-control" name="cf-email" readonly value="<?php echo $email ?>">
+                            </tr>
+
+
+                            <br>
+                            <tr><b>Nội dung phản hồi:</b>
+                                <?php foreach ($feedback as $item) { ?>
+                                    <textarea class="form-control" rows="5" readonly value=""><?php echo $item['content'] ?></textarea>
+                                <?php } ?>
+                            <tr><b>Nội dung đã trả lời:</b></tr>
+                            <?php foreach ($feedback as $item) { ?>
+                                <textarea class="form-control" rows="5" readonly value=""><?php echo $item['reply'] ?></textarea>
+                            <?php } ?>
+                            <button type="submit" class="form-control" id="submit" name="back" style="background-color:coral;">Trở lại</button>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+</body>
